@@ -19,24 +19,24 @@ public class NascarLiveFeedClient
 // Type the subset you need, based on real feed structure
 public class LiveFeedRoot
 {
-    public LiveFlagState FlagState { get; set; } = new();
-    public List<LiveVehicle> Vehicles { get; set; } = new();
-    public int LapNumber { get; set; }
+    public int lap_number { get; set; }
+    public LiveFlagState flag_state { get; set; } = new();
+    public List<LiveVehicle> vehicles { get; set; } = new();
 }
 
 public class LiveFlagState
 {
-    public string FlagStatus { get; set; } = default!; // GREEN, YELLOW, etc.
+    public string flag_status { get; set; } = string.Empty;
 }
 
 public class LiveVehicle
 {
-    public string VehicleId { get; set; } = default!; // driver id
-    public string DriverName { get; set; } = default!;
-    public string CarNumber { get; set; } = default!;
-    public int RunningPosition { get; set; }
-    public int LapsCompleted { get; set; }
-    public double LastLapTime { get; set; }
-    public double BestLapTime { get; set; }
-    public double Interval { get; set; } // vs leader
+    public string vehicle_id { get; set; } = string.Empty;
+    public string driver_name { get; set; } = string.Empty;
+    public string car_number { get; set; } = string.Empty;
+    public int running_position { get; set; }
+    public int laps_completed { get; set; }
+    public double last_lap_time { get; set; }
+    public double best_lap_time { get; set; }
+    public double interval { get; set; }
 }

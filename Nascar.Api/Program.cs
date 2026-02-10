@@ -1,61 +1,53 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.ML;
 using Nascar.Infrastructure.Data;
 using Nascar.Infrastructure.Repositories;
-using Nascar.Api.Clients;
-using Microsoft.ML;
 using Nascar.Api.Services;
+using Nascar.Api.Clients;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
+// Controllers (no Swagger needed)
 builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
 
 // DbContext
-builder.Services.AddDbContext<NascarDbContext>(opt =>
-    opt.UseSqlite("Data Source=nascar.db"));
+builder.Services.AddDbContext<NascarDbContext>(options =>
+    options.UseSqlite("Data Source=nascar.db"));
 
 // Repository
 builder.Services.AddScoped<INascarRepository, NascarRepository>();
 
-// Http client for real NASCAR JSON[web:31]
+// ML.NET
+builder.Services.AddSingleton<MLContext>();
+
+// Services
+builder.Services.AddScoped<PredictionService>();
+builder.Services.AddScoped<LiveRaceService>();
+
+// HttpClient for NASCAR feeds
 builder.Services.AddHttpClient<NascarLiveFeedClient>(client =>
 {
     client.BaseAddress = new Uri("https://cf.nascar.com/");
 });
 
-// ML.NET
-builder.Services.AddSingleton<MLContext>();
-builder.Services.AddScoped<PredictionService>();
-
+// CORS for frontend
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", p =>
-        p.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
 });
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-}
-
-app.UseSwagger();
-
-app.UseSwaggerUI();
-
-app.UseCors("AllowAll");
-
 app.UseHttpsRedirection();
-
-app.UseAuthorization();
-
+app.UseCors("AllowAll");
 app.MapControllers();
 
+Console.WriteLine("🚀 NASCAR API running!");
+Console.WriteLine("📡 Test endpoint: https://localhost:5001/api/live/1/5273");
+Console.WriteLine("Press Ctrl+C to stop.");
 app.Run();
